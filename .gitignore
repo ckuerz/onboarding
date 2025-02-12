@@ -1,0 +1,8 @@
+# Add directories or file patterns to ignore during indexing (e.g. foo/ or *.csv
+env
+*.pyc
+__pycache__/
+.env
+*.log
+.cursorignore
+.cursorrules
