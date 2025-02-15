@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import UserRegistrationView, UserListView
+from .views import UserView, UserListView
 
 urlpatterns = [
-    path('register/', UserRegistrationView.as_view(), name='user-register'),
-    path('users/', UserListView.as_view(), name='user-list'),
+    path('', UserListView.as_view(), name='user-list'),  # Only GET (list), POST (create)
+    path('<int:user_id>/', UserView.as_view(), name='user-detail'),  # GET, PUT, PATCH, DELETE for single user
 ] 

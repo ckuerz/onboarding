@@ -38,7 +38,7 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path('api/', include('api.user.urls')),
+    path('user/', include('api.user.urls')),
     # Swagger documentation URLs
     path('swagger<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
