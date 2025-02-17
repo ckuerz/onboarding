@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db import connection
 from django.contrib.auth.hashers import make_password
-from .serializers import UserSerializer, UserReadSerializer, UserCreateSerializer, UserUpdateSerializer
+from .serializers import UserReadSerializer, UserCreateSerializer, UserUpdateSerializer
 from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -104,7 +104,7 @@ class UserView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(
-        request_body=UserSerializer,
+        request_body=UserReadSerializer,
         operation_description="Partial update of a user",
         manual_parameters=[
             openapi.Parameter(
@@ -115,14 +115,14 @@ class UserView(APIView):
             )
         ],
         responses={
-            200: UserSerializer,
+            200: UserReadSerializer,
             400: "Invalid input data",
             404: "User not found"
         }
     )
     def patch(self, request, user_id):
         """Partial update of a user"""
-        serializer = UserSerializer(data=request.data, partial=True)
+        serializer = UserReadSerializer(data=request.data, partial=True)
         if not serializer.is_valid():
             return Response(
                 {'error': 'Invalid input data', 'detail': serializer.errors},
@@ -136,7 +136,7 @@ class UserView(APIView):
                     {'error': 'User not found'},
                     status=status.HTTP_404_NOT_FOUND
                 )
-            return Response(UserSerializer(user).data)
+            return Response(UserReadSerializer(user).data)
         except Exception as e:
             return Response(
                 {'error': 'Database error', 'detail': str(e)},

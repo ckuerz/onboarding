@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from decouple import config
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,6 +23,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY')
+
+print("DEBUG value from .env:", config('DEBUG'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
@@ -87,7 +90,7 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS = []
+# AUTH_PASSWORD_VALIDATORS = []
 
 
 # Internationalization
@@ -127,7 +130,7 @@ REST_FRAMEWORK = {
 
 # Update SWAGGER_SETTINGS
 SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': None,  # Remove security definitions
+    'SECURITY_DEFINITIONS': None,
     'USE_SESSION_AUTH': False,
     'APIS_SORTER': 'alpha',
     'JSON_EDITOR': True,
@@ -138,3 +141,61 @@ SWAGGER_SETTINGS = {
 REDOC_SETTINGS = {
    'LAZY_RENDERING': True,
 }
+
+# Logging Configuration
+LOG_DIR = BASE_DIR / 'logs'
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{levelname}] {asctime} {name} {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
+        },
+        'simple': {
+            'format': '[{levelname}] {message}',
+            'style': '{'
+        },
+        'email': {
+            'format': 'Location: {pathname}\n\nTime: {asctime}\n\nLevel: {levelname}\n\nMessage: {message}',
+            'style': '{'
+        }
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOG_DIR, 'user_v2.log'),
+            'formatter': 'verbose',
+            'level': 'ERROR',
+        },
+        'mail_admins': {
+            'class': 'django.utils.log.AdminEmailHandler',
+            'formatter': 'email',
+            'level': 'FATAL',
+        }
+    },
+    'loggers': {
+        'api.user_v2': {
+            'handlers': ['console', 'file', 'mail_admins'] if not DEBUG else ['console'],
+            'level': 'ERROR' if not DEBUG else 'DEBUG',
+            'propagate': True,
+        }
+    }
+}
+
+# Email settings for logging
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = config('EMAIL_HOST', default='localhost')
+EMAIL_PORT = config('EMAIL_PORT', default=25, cast=int)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=False, cast=bool)
+ADMINS = [('Admin', 'admin@foo.de')]
